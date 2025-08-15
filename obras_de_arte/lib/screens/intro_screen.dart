@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:obras_de_arte/routes.dart';
 
 class IntroScreen extends StatefulWidget {
@@ -12,12 +13,12 @@ class _IntroScreenState extends State<IntroScreen> {
   final List<Map<String, String>> _pages = [
     {
       'title': 'Bem-vindo ao app',
-      'subtitle': 'aprenda a usar o app passo a passo',
+      'subtitle': 'Aprenda a usar o app passo a passo',
       'lottie': 'assets/lottie/intro1.json',
     },
     {
       'title': 'Funcionalidades',
-      'subtitle': 'Explore as diversas funcionalidades',
+      'subtitle': 'Explore as diversas funcionalidades.',
       'lottie': 'assets/lottie/intro2.json',
     },
     {
@@ -34,7 +35,7 @@ class _IntroScreenState extends State<IntroScreen> {
   void _onNext() {
     if (_currentPage < _pages.length - 1) {
       _pageController.nextPage(
-        duration: Duration(microseconds: 300),
+        duration: Duration(milliseconds: 300),
         curve: Curves.easeIn,
       );
     } else {
@@ -49,7 +50,7 @@ class _IntroScreenState extends State<IntroScreen> {
   void _onBack() {
     if (_currentPage > 0) {
       _pageController.previousPage(
-        duration: Duration(microseconds: 300),
+        duration: Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
     }
@@ -57,18 +58,88 @@ class _IntroScreenState extends State<IntroScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isLastpage = _currentPage == _pages.length - 1;
+    final isLastPage = _currentPage == _pages.length - 1;
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            Expanded(child: Placeholder()),
-            if (isLastpage) Padding(padding: EdgeInsets.all(16)),
+            //Tela
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: _pages.length,
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentPage = index;
+                  });
+                },
+                itemBuilder: (context, index) {
+                  final page = _pages[index];
+                  return Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      children: [
+                        Expanded(child: Lottie.asset(page['lottie']!)),
+                        Text(
+                          page['title']!,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 12),
+                        Text(
+                          page['subtitle']!,
+                          style: TextStyle(fontSize: 16),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            //Checkbox
+            if (isLastPage)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: _dontShowAgain,
+                      onChanged: (val) {
+                        setState(() {
+                          _dontShowAgain = val ?? false;
+                        });
+                      },
+                    ),
+                    Expanded(
+                      child: Text('Não mostrar essa introdução novamente.'),
+                    ),
+                  ],
+                ),
+              ),
+
+            // Botões
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 12.0,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [],
+                children: [
+                  // Botão Voltar à partir da tela 2
+                  if (_currentPage > 0)
+                    TextButton(onPressed: _onBack, child: Text('Voltar'))
+                  else
+                    SizedBox(width: 80), // espaço para alinhar
+                  TextButton(
+                    onPressed: _onNext,
+                    child: Text(isLastPage ? 'Concluir' : 'Avançar'),
+                  ),
+                ],
               ),
             ),
           ],
